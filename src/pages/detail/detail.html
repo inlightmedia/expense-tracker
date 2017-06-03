@@ -1,0 +1,52 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>{{ expense.description || 'New Expense' }}</ion-title>
+    <ion-buttons end>
+       <button ion-button icon-only (click)="showConfirm()" *ngIf="!newExpense">
+        <ion-icon name="trash"></ion-icon>
+      </button>
+      <button ion-button icon-only (click)="onSave()" [disabled]="!newExpenseForm.valid">
+        <ion-icon name="checkmark"></ion-icon>
+      </button>
+
+    </ion-buttons>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+
+  <form #newExpenseForm="ngForm"> <!-- ngForm reference gets the form object and its properties such as validity -->
+    <ion-list >
+
+    <ion-item>
+      <ion-label stacked>Date</ion-label>
+      <ion-datetime
+        name="date"
+        [(ngModel)]="expense.date"
+        required
+      ></ion-datetime>
+    </ion-item>
+
+    <ion-item>
+      <ion-label stacked>Amount</ion-label>
+      <ion-input name="amount" type="number" [(value)]="expense.amount" [(ngModel)]="expense.amount"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label stacked>Category</ion-label>
+      <ion-select required name="category" multiple="true" [(ngModel)]="expense.category">
+        <ion-option *ngFor="let category of categories">{{ category }}</ion-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label stacked>Description</ion-label>
+      <ion-input required name="description" type="text" [(ngModel)]="expense.description"></ion-input>
+    </ion-item>
+
+  </ion-list>
+</form>
+</ion-content>

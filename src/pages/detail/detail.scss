@@ -1,0 +1,12 @@
+page-detail {
+
+  input[type=number] {
+    text-align: right;
+  }
+  .toast {
+    color: blue;
+  }
+}
+.toast {
+  background: $toast-md-background !important;
+}

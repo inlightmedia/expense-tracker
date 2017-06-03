@@ -29,19 +29,25 @@ export class DetailPage {
     const expenseId = navParams.data.expenseId;
     // this.expense = navParams.data.expense;
     this.categories = this.expenseService.categories;
+
+    // Initialize empty expense until async promise returns from the database to prevent undefined expense error
+    this.newExpense = true;
+    this.expense = {
+      date: '',
+      currency: 'CAD',
+      amount: null,
+      category: '',
+      description: ''
+    }
+
     if(expenseId){
-      this.expense = expenseService.getExpense(expenseId);
+      expenseService.getExpense(expenseId)
+        .then(expense => {
+          this.expense = expense;
+          console.log(expense.date);
+        })
+        .catch(error => console.log(error));
       this.newExpense = false;
-    } else {
-      this.newExpense = true;
-      this.expense = {
-        id: null,
-        date: '',
-        currency: '',
-        amount: null,
-        category: '',
-        description: ''
-      }
     }
 
   }
@@ -60,21 +66,6 @@ export class DetailPage {
     this.navCtrl.pop();
   }
 
-  presentToast() {
-  let toast = this.toastCtrl.create({
-    message: 'Expense removed successfully',
-    duration: 3000,
-    position: 'bottom',
-    cssClass: 'toast'
-  });
-
-  toast.onDidDismiss(() => {
-    console.log('Dismissed toast');
-  });
-
-  toast.present();
-}
-
   showConfirm() {
 
       let confirm = this.alertCtrl.create({
@@ -82,20 +73,16 @@ export class DetailPage {
         message: 'This cannot be undone.',
         buttons: [
           {
-            text: 'No Way!',
-            handler: () => {
-              console.log('Disagree clicked');
-              this.choice = false;
-
-            }
+            text: 'Stop right there!',
+            handler: () => {}
           },
           {
-            text: 'Make it so',
+            text: 'Delete',
             handler: () => {
               console.log('Agree clicked');
-              this.expenseService.removeExpense(this.expense);
-              this.navCtrl.pop();
-              this.presentToast();
+              this.expenseService.removeExpense(this.expense.id)
+                .then(result => this.navCtrl.pop())
+                .catch(error => console.log(error));
             }
           }
         ]
@@ -104,4 +91,18 @@ export class DetailPage {
 
     }
 
+    // presentToast() {
+    //   let toast = this.toastCtrl.create({
+    //     message: 'Expense removed successfully',
+    //     duration: 3000,
+    //     position: 'bottom',
+    //     cssClass: 'toast'
+    //   });
+
+    //   toast.onDidDismiss(() => {
+    //     console.log('Dismissed toast');
+    //   });
+
+    //   toast.present();
+    // }
 }

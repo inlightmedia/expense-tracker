@@ -1,58 +1,46 @@
 import { Expense } from './expense.model';
 import uuidv4 from 'uuid/v4';
+import Dexie from 'dexie';
 
-export class ExpenseService {
+export class ExpenseService extends Dexie {
 
   categories = ["Food", "Travel", "Business", "Other"];
   expensesHaveBeenAdded = false;
   newExpenseId;
+  // make an indexedDB databse store or in this case Table with the type of Expense and the primary key type
+  expenses: Dexie.Table<Expense, string>;
 
-   expenses:Expense[] = this.loadExpenses() || [];
+  constructor(){
+  super('expense_tracker')
+    this.version(1).stores({
+      expenses: 'id, date' //only specify those to be indexed
+    });
+  }
+getExpense(expenseId: string):Dexie.Promise<Expense>{
+  return this.expenses.get(expenseId);
 
-getExpense(expenseId: string){
-  //return the expense if it is true that the expense object has an id property with the value of expenseId (1,2, or 3 in this case)
-  // return this.expenses.find(it => it.id === expenseId);
+}
 
-  // Can also return a copy of the expense so you are not editing the original memory space
-  const expense = this.expenses.find(it => it.id === expenseId);
-  return Object.assign({}, expense); // This takes the top level properties of the expense object and assigns them to a new empty object (different memory space)
+getExpenses():Dexie.Promise<Expense[]>{
+  return this.expenses.toArray();
 }
 
 updateExpense(expense: Expense){
-  // determines which position i the expenses array our matching expense is so we can edit it
-  const index = this.expenses.findIndex(it => it.id === expense.id)
-  this.expenses[index] = expense;
-  // Stores data in a local storage so that data will be present on app reset.
-  this.storeExpenses();
+  return this.expenses.update(expense.id, expense);
 }
 
 addExpense(expense: Expense){
 
   // Generate a new univesal unique ID
   expense.id = uuidv4();
-  if (!expense.currency) {
-    expense.currency = 'CAD';
-  }
-  this.expenses.push(expense);
-  this.storeExpenses();
-  this.expensesHaveBeenAdded = true;
-  console.log('The new Expense is:', expense);
+  return this.expenses.add(expense);
+
 }
 
-removeExpense(expense: Expense) {
- console.log('This expense will be removed:', expense);
- const index = this.expenses.findIndex(it => it.id === expense.id)
-  const itemRemoved = this.expenses.splice(index, 1);
-  console.log('Expense removed:', itemRemoved);
-  this.storeExpenses();
+removeExpense(expenseId: string) {
+  return this.expenses.delete(expenseId)
+
 }
 
-private loadExpenses(): Expense[] {
-  return JSON.parse(localStorage.getItem('expenses'));
-}
-
-private storeExpenses() {
-  localStorage.setItem('expenses', JSON.stringify(this.expenses));
-}
 
 }

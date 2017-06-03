@@ -13,7 +13,8 @@ export class HomePage {
   expenses: Expense[];
 
   constructor(private navCtrl: NavController, private expenseService: ExpenseService) {
-    this.expenses = this.expenseService.expenses;
+
+
   }
 
   onItemClick(expense: Expense) {
@@ -23,10 +24,14 @@ export class HomePage {
     });
   }
   onAddClick(){
-    this.navCtrl.push(DetailPage, {
-      // expenseId: expense.id
-    });
-    // this.expenseService.addExpense();
+    this.navCtrl.push(DetailPage);
+
+  }
+
+  ionViewWillEnter(){
+    // Called whenever the page is about to be displayed - ionic lifecycle hook
+    this.expenseService.getExpenses()
+      .then(expenses => this.expenses = expenses);
   }
 
 }
